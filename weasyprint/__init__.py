@@ -70,11 +70,15 @@ class HTML(object):
         Defaults to ``'print'``. **Note:** In some cases like
         ``HTML(string=foo)`` relative URLs will be invalid if ``base_url``
         is not provided.
+    :param attachments: A list of tuples, where each element describes an
+        attachment to the document. The tuple contains a filename, a file like
+        object or URL and a descriptive title, which can be ``None``.
 
     """
     def __init__(self, guess=None, filename=None, url=None, file_obj=None,
                  string=None, tree=None, encoding=None, base_url=None,
-                 url_fetcher=default_url_fetcher, media_type='print'):
+                 url_fetcher=default_url_fetcher, media_type='print',
+                 attachments=None):
         result = _select_source(
             guess, filename, url, file_obj, string, tree, base_url,
             url_fetcher)
@@ -100,12 +104,15 @@ class HTML(object):
         self.base_url = base_url
         self.url_fetcher = url_fetcher
         self.media_type = media_type
+        self.attachments = attachments or []
 
     def _ua_stylesheets(self):
         return [HTML5_UA_STYLESHEET]
 
     def _get_metadata(self):
-        return get_html_metadata(self.root_element)
+        metadata = get_html_metadata(self.root_element)
+        metadata["attachments"].append(self.attachments)
+        return metadata
 
     def render(self, stylesheets=None, enable_hinting=False):
         """Lay out and paginate the document, but do not (yet) export it

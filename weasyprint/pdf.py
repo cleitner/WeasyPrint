@@ -424,6 +424,10 @@ def write_pdf_metadata(document, fileobj, scale, metadata):
                 '/Annots [{0}]', ' '.join(
                     '{0} 0 R'.format(n) for n in annotations)))
 
+    if len(metadata.attachments) > 0:
+        # TODO: add files and the /EmbeddedFiles dictionary
+        pass
+
     info = [pdf_format('<< /Producer {0!P}\n', VERSION_STRING)]
     for attr, key in (('title', 'Title'), ('description', 'Subject'),
                       ('generator', 'Creator')):

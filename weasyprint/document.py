@@ -246,7 +246,8 @@ class DocumentMetadata(object):
 
     """
     def __init__(self, title=None, authors=None, description=None,
-                 keywords=None, generator=None, created=None, modified=None):
+                 keywords=None, generator=None, created=None, modified=None,
+                 attachments=None):
         #: The title of the document, as a string or :obj:`None`.
         #: Extracted from the ``<title>`` element in HTML
         #: and written to the ``/Title`` info field in PDF.
@@ -281,6 +282,11 @@ class DocumentMetadata(object):
         #: Extracted from the ``<meta name=dcterms.modified>`` element in HTML
         #: and written to the ``/ModDate`` info field in PDF.
         self.modified = modified
+        #: File attachments as a list of tuples with filename, URL or file-like
+        #: object and a description or :obj:`None`.
+        #: Extracted from the ``<link rel=attachment>`` elements in HTML
+        #: and written to the ``/EmbeddedFiles`` dictionary in PDF.
+        self.attachments = attachments or []
 
 
 class Document(object):

@@ -61,6 +61,11 @@ def main(argv=None, stdout=None, stdin=None):
 
         Set the media type to use for ``@media``. Defaults to ``print``.
 
+    .. option:: -a <file>, --attachment <file>
+
+        Adds an attachment to the document which is included in the PDF output.
+        This option can be added multiple times to attach more files.
+
     .. option:: --version
 
         Show the version number. Other options and arguments are ignored.
@@ -92,6 +97,8 @@ def main(argv=None, stdout=None, stdin=None):
                         help='Base for relative URLs in the HTML input. '
                              "Defaults to the input's own filename or URL "
                              'or the current directory for stdin.')
+    parser.add_argument('-a', '--attachment', action='append',
+                        help='URL or filename of a file to attach to the document')
     parser.add_argument(
         'input', help='URL or filename of the HTML input, or - for stdin')
     parser.add_argument(
@@ -136,8 +143,21 @@ def main(argv=None, stdout=None, stdin=None):
             kwargs['resolution'] = args.resolution
         else:
             parser.error('--resolution only applies for the PNG format.')
+
+    attachments = []
+    if args.attachment:
+        if format_ == 'pdf':
+            # TODO: is the basename a good idea? might be worth allowing pure
+            # URIs, which brings us to the question if we should require an
+            # explicit filename (and maybe the title/description)
+            import os
+            for a in args.attachment:
+                attachments.append((os.path.basename(a), a, None))
+        else:
+            parser.error('--attachment only applies for the PDF format.')
+
     html = HTML(source, base_url=args.base_url, encoding=args.encoding,
-                media_type=args.media_type)
+                media_type=args.media_type, attachments=attachments)
     getattr(html, 'write_' + format_)(output, **kwargs)
 
 
