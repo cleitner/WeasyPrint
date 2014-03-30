@@ -30,7 +30,7 @@ import contextlib
 import html5lib
 
 from .urls import (fetch, default_url_fetcher, path2url, ensure_url,
-                   url_is_absolute)
+                   url_is_absolute, url_join)
 from .compat import unicode
 from .logger import LOGGER
 # Some import are at the end of the file (after the CSS class) is defined
@@ -71,8 +71,8 @@ class HTML(object):
         ``HTML(string=foo)`` relative URLs will be invalid if ``base_url``
         is not provided.
     :param attachments: A list of tuples, where each element describes an
-        attachment to the document. The tuple contains a filename, a file like
-        object or URL and a descriptive title, which can be ``None``.
+        attachment to the document. The tuple contains a filename, a URL and a
+        description, which can be :obj:`None`.
 
     """
     def __init__(self, guess=None, filename=None, url=None, file_obj=None,
@@ -104,14 +104,17 @@ class HTML(object):
         self.base_url = base_url
         self.url_fetcher = url_fetcher
         self.media_type = media_type
-        self.attachments = attachments or []
+        self.attachments = []
+        for filename, url, description in (attachments or []):
+            absolute_url = url_join(base_url, url, "attachment %s", filename)
+            self.attachments.append((filename, absolute_url, description))
 
     def _ua_stylesheets(self):
         return [HTML5_UA_STYLESHEET]
 
     def _get_metadata(self):
         metadata = get_html_metadata(self.root_element)
-        metadata["attachments"].append(self.attachments)
+        metadata["attachments"].extend(self.attachments)
         return metadata
 
     def render(self, stylesheets=None, enable_hinting=False):
@@ -164,7 +167,8 @@ class HTML(object):
             :obj:`target`.)
 
         """
-        return self.render(stylesheets).write_pdf(target, zoom)
+        return self.render(stylesheets).write_pdf(target, zoom,
+                           self.url_fetcher)
 
     def write_image_surface(self, stylesheets=None, resolution=96):
         surface, _width, _height = (

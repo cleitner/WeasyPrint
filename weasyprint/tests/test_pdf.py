@@ -334,3 +334,57 @@ def test_document_info():
     assert b'/Subject (\xfe\xff\x00B\x00l\x00a\x00h &\x00 )' in pdf_bytes
     assert b'/CreationDate (D:201104)' in pdf_bytes
     assert b"/ModDate (D:20130721234600+01'00')" in pdf_bytes
+
+
+@assert_no_logs
+def test_embedded_files():
+    import hashlib
+
+    pdf_bytes = TestHTML(string='''
+        <title>Test document</title>
+        <meta charset="utf-8">
+        <link
+            rel="attachment"
+            title="some file attachment äöü"
+            href="data:,hi%20there">
+        <h1>Heading 1</h1>
+        <h2>Heading 2</h2>
+    ''').write_pdf()
+
+    assert (hashlib.md5(b'hi there').digest() in pdf_bytes)
+    assert (b'/F (data:,hi%20there)' in pdf_bytes)
+    assert (b'/Desc (\xfe\xff\x00s\x00o\x00m\x00e\x00 \x00f\x00i\x00l\x00e'
+            b'\x00 \x00a\x00t\x00t\x00a\x00c\x00h\x00m\x00e\x00n\x00t\x00 '
+            b'\x00\xe4\x00\xf6\x00\xfc)')
+    assert (b'/EmbeddedFiles' in pdf_bytes)
+    assert (b'/Outlines' in pdf_bytes)
+
+    pdf_bytes = TestHTML(string='''
+        <title>Test document 2</title>
+        <meta charset="utf-8">
+        <link
+            rel="attachment"
+            href="data:,some data">
+    ''').write_pdf()
+
+    assert (hashlib.md5(b'some data').digest() in pdf_bytes)
+    assert (b'/EmbeddedFiles' in pdf_bytes)
+    assert (not b'/Outlines' in pdf_bytes)
+
+    pdf_bytes = TestHTML(string='''
+        <title>Test document 3</title>
+        <meta charset="utf-8">
+        <h1>Heading</h1>
+    ''').write_pdf()
+
+    assert (not b'/EmbeddedFiles' in pdf_bytes)
+    assert (b'/Outlines' in pdf_bytes)
+
+    pdf_bytes = TestHTML(string='''
+        <title>Test document 4</title>
+        <meta charset="utf-8">
+    ''').write_pdf()
+
+    assert (not b'/EmbeddedFiles' in pdf_bytes)
+    assert (not b'/Outlines' in pdf_bytes)
+

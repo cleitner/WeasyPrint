@@ -258,6 +258,7 @@ def get_html_metadata(html_document):
         elif element.tag == 'link':
             rel = ascii_lower(element.get('rel', ''))
             href = element.get('href', '')
+            url = get_url_attribute(element, 'href')
             title = element.get('title', None)
             if rel == 'attachment':
                 if href == '':
@@ -267,7 +268,7 @@ def get_html_metadata(html_document):
                     # TODO: find a way to resolve a good filename from the
                     # href. Think data URLs which should be supported if
                     # possible
-                    attachments.append((href, href, title))
+                    attachments.append((href, url, title))
     return dict(title=title, description=description, generator=generator,
                 keywords=keywords, authors=authors,
                 created=created, modified=modified,
