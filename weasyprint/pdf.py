@@ -487,7 +487,7 @@ def _write_pdf_attachment(pdf, filename, url, description, url_fetcher):
             file_stream_id = pdf.write_compressed_file_object(stream)
 
         return pdf.write_new_object(pdf_format(
-            '<< /Type /Filespec /F {0!S} /UF {1!P} /EF << /F {2} 0 R >> '
+            '<< /Type /Filespec /F ({0}) /UF {1!P} /EF << /F {2} 0 R >> '
             '/Desc {3!P}\n>>',
             iri_to_uri(filename),
             filename,
