@@ -257,18 +257,13 @@ def get_html_metadata(html_document):
                 modified = parse_w3c_date(name, element.sourceline, content)
         elif element.tag == 'link':
             rel = ascii_lower(element.get('rel', ''))
-            href = element.get('href', '')
             url = get_url_attribute(element, 'href')
             title = element.get('title', None)
             if rel == 'attachment':
-                if href == '':
-                    LOGGER.warning('Missing href in <link rel="%s"> line %i: %r',
-                        rel, source_line, string)
+                if url is None:
+                    LOGGER.warning('Missing href in <link rel="%s">', rel)
                 else:
-                    # TODO: find a way to resolve a good filename from the
-                    # href. Think data URLs which should be supported if
-                    # possible
-                    attachments.append((href, url, title))
+                    attachments.append((url, title))
     return dict(title=title, description=description, generator=generator,
                 keywords=keywords, authors=authors,
                 created=created, modified=modified,

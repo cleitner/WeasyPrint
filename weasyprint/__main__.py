@@ -17,6 +17,7 @@ import sys
 import argparse
 
 from . import VERSION, HTML
+from .urls import path2url, urlsplit
 
 
 def main(argv=None, stdout=None, stdin=None):
@@ -147,12 +148,14 @@ def main(argv=None, stdout=None, stdin=None):
     attachments = []
     if args.attachment:
         if format_ == 'pdf':
-            # TODO: is the basename a good idea? might be worth allowing pure
-            # URIs, which brings us to the question if we should require an
-            # explicit filename (and maybe the title/description)
-            import os
             for a in args.attachment:
-                attachments.append((os.path.basename(a), a, None))
+                # Convert passed file names into absolute file: URLs, because
+                # we don't want to resolve them relative to the document, but
+                # relative to the current working directory.
+                if urlsplit(a).scheme == '':
+                    # should be a file path
+                    a = path2url(a)
+                attachments.append((a, None))
         else:
             parser.error('--attachment only applies for the PDF format.')
 

@@ -282,8 +282,8 @@ class DocumentMetadata(object):
         #: Extracted from the ``<meta name=dcterms.modified>`` element in HTML
         #: and written to the ``/ModDate`` info field in PDF.
         self.modified = modified
-        #: File attachments as a list of tuples with filename, URL and a
-        #: description or :obj:`None`.
+        #: File attachments as a list of tuples of URL and a description or
+        #: :obj:`None`.
         #: Extracted from the ``<link rel=attachment>`` elements in HTML
         #: and written to the ``/EmbeddedFiles`` dictionary in PDF.
         self.attachments = attachments or []

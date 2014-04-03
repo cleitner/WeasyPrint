@@ -71,8 +71,8 @@ class HTML(object):
         ``HTML(string=foo)`` relative URLs will be invalid if ``base_url``
         is not provided.
     :param attachments: A list of tuples, where each element describes an
-        attachment to the document. The tuple contains a filename, a URL and a
-        description, which can be :obj:`None`.
+        attachment to the document. The tuple contains a URL and a description,
+        which can be :obj:`None`.
 
     """
     def __init__(self, guess=None, filename=None, url=None, file_obj=None,
@@ -105,9 +105,7 @@ class HTML(object):
         self.url_fetcher = url_fetcher
         self.media_type = media_type
         self.attachments = []
-        for filename, url, description in (attachments or []):
-            absolute_url = url_join(base_url, url, "attachment %s", filename)
-            self.attachments.append((filename, absolute_url, description))
+        self.attachments.extend(attachments or [])
 
     def _ua_stylesheets(self):
         return [HTML5_UA_STYLESHEET]

@@ -40,7 +40,7 @@ import cairocffi as cairo
 
 from . import VERSION_STRING
 from .compat import xrange, iteritems, izip
-from .urls import iri_to_uri, fetch, URLFetchingError
+from .urls import iri_to_uri, fetch, urlsplit, URLFetchingError
 from .html import W3C_DATE_RE
 from .logger import LOGGER
 
@@ -449,7 +449,16 @@ def _write_pdf_embedded_files(pdf, attachments, url_fetcher):
     """
 
     file_spec_ids = []
-    for filename, url, description in attachments:
+    n = 0
+    for url, description in attachments:
+        # We derive the filename from the URLs path if available, or generate a
+        # synthetic name
+        split = urlsplit(url)
+        filename = split.path.split("/")[-1]
+        if split.scheme == 'data' or filename == '':
+            filename = 'attachment{}.bin'.format(n)
+            n += 1
+
         file_spec_id = _write_pdf_attachment(pdf, filename, url, description,
                                              url_fetcher)
         if not file_spec_id is None:
