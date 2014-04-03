@@ -71,7 +71,7 @@ class PDFFormatter(string.Formatter):
                 .translate({40: r'\(', 41: r'\)', 92: r'\\'}))
         elif conversion == 'S':
             return '({0})'.format(
-                value.translate({'(': r'\(', ')': r'\)', '\\': r'\\'}))
+                value.translate({40: r'\(', 41: r'\)', 92: r'\\'}))
         else:
             return super(PDFFormatter, self).convert_field(value, conversion)
 
