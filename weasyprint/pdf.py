@@ -40,7 +40,7 @@ import cairocffi as cairo
 
 from . import VERSION_STRING
 from .compat import xrange, iteritems, izip
-from .urls import iri_to_uri, fetch, urlsplit, URLFetchingError
+from .urls import iri_to_uri, fetch, unquote, urlsplit, URLFetchingError
 from .html import W3C_DATE_RE
 from .logger import LOGGER
 
@@ -458,6 +458,8 @@ def _write_pdf_embedded_files(pdf, attachments, url_fetcher):
         if split.scheme == 'data' or filename == '':
             filename = 'attachment{}.bin'.format(n)
             n += 1
+        else:
+            filename = unquote(filename)
 
         file_spec_id = _write_pdf_attachment(pdf, filename, url, description,
                                              url_fetcher)
@@ -496,9 +498,8 @@ def _write_pdf_attachment(pdf, filename, url, description, url_fetcher):
             file_stream_id = pdf.write_compressed_file_object(stream)
 
         return pdf.write_new_object(pdf_format(
-            '<< /Type /Filespec /F ({0}) /UF {1!P} /EF << /F {2} 0 R >> '
-            '/Desc {3!P}\n>>',
-            iri_to_uri(filename),
+            '<< /Type /Filespec /F () /UF {0!P} /EF << /F {1} 0 R >> '
+            '/Desc {2!P}\n>>',
             filename,
             file_stream_id,
             description or ''))
