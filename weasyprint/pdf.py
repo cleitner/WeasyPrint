@@ -31,6 +31,7 @@ r"""
 
 from __future__ import division, unicode_literals
 
+import binascii
 import io
 import os
 import re
@@ -51,10 +52,10 @@ class PDFFormatter(string.Formatter):
     * Results are byte strings
     * The new !P conversion flags encodes a PDF string.
       (UTF-16 BE with a BOM, then backslash-escape parentheses.)
-    * The new !S conversion flags encodes a PDF string.
-      (backslash-escape parentheses)
+    * The new !H conversion flags encodes a PDF string in the hexadecimal
+      format.
 
-    Except for fields marked !P, everything should be ASCII-only.
+    Except for fields marked !P or !H, everything should be ASCII-only.
 
     """
     def convert_field(self, value, conversion):
@@ -69,9 +70,8 @@ class PDFFormatter(string.Formatter):
             return '({0})'.format(
                 ('\ufeff' + value).encode('utf-16-be').decode('latin1')
                 .translate({40: r'\(', 41: r'\)', 92: r'\\'}))
-        elif conversion == 'S':
-            return '({0})'.format(
-                value.translate({40: r'\(', 41: r'\)', 92: r'\\'}))
+        elif conversion == 'H':
+            return '<{0}>'.format(binascii.hexlify(value))
         else:
             return super(PDFFormatter, self).convert_field(value, conversion)
 
@@ -308,7 +308,7 @@ class PDFFile(object):
         self.new_objects_offsets.append(
             self._write_object(
                 md5_number,
-                pdf_format("{0!S}", md5.digest().decode("latin1"))))
+                pdf_format("{0!H}", md5.digest())))
         self.new_objects_offsets.append(
             self._write_object(
                 uncompressed_length_number,
