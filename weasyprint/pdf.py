@@ -71,7 +71,7 @@ class PDFFormatter(string.Formatter):
                 ('\ufeff' + value).encode('utf-16-be').decode('latin1')
                 .translate({40: r'\(', 41: r'\)', 92: r'\\'}))
         elif conversion == 'H':
-            return '<{0}>'.format(binascii.hexlify(value))
+            return '<{0}>'.format(binascii.hexlify(value).decode('ascii'))
         else:
             return super(PDFFormatter, self).convert_field(value, conversion)
 
