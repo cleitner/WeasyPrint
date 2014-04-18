@@ -18,7 +18,8 @@ import argparse
 
 from . import VERSION, HTML
 from .compat import (
-    build_opener, install_opener, HTTPBasicAuthHandler, HTTPDigestAuthHandler)
+    build_opener, install_opener, HTTPBasicAuthHandler, HTTPDigestAuthHandler,
+    HTTPPasswordMgrWithDefaultRealm)
 
 def main(argv=None, stdout=None, stdin=None):
     """The ``weasyprint`` program takes at least two arguments:
@@ -151,13 +152,9 @@ def main(argv=None, stdout=None, stdin=None):
             parser.error('--resolution only applies for the PNG format.')
 
     if not args.http_username is None:
-        class PasswordMgr(object):
-            def add_password(self, realm, uri, user, passwd):
-                pass
-            def find_user_password(self, realm, authuri):
-                return args.http_username, args.http_password or ''
-
-        mgr = PasswordMgr()
+        mgr = HTTPPasswordMgrWithDefaultRealm()
+        mgr.add_password(None, args.input, args.http_username,
+            args.http_password)
         basic_handler = HTTPBasicAuthHandler(mgr)
         digest_handler = HTTPDigestAuthHandler(mgr)
         install_opener(build_opener(basic_handler, digest_handler))

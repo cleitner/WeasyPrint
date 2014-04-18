@@ -1024,7 +1024,7 @@ def test_command_line_http_auth():
     """Test the HTTP authentication support of the command line interface."""
 
     # Start a webserver that provides resources, each with a different
-    # authentication method (/basic and /digest)
+    # authentication method (/basic... and /digest...)
     class AuthenticatingRequestHandler(BaseHTTPRequestHandler):
         def log_message(self, format, *args):
             pass
@@ -1032,17 +1032,29 @@ def test_command_line_http_auth():
         def do_GET(self):
             authorization = self.headers['Authorization'] or ''
 
-            if self.path == '/basic':
+            if self.path.startswith('/basic'):
                 authorization = authorization.encode('ascii')
                 if authorization.startswith(b'Basic ') and \
                     base64.b64decode(authorization[6:]) == b'weasy:print':
-                    self.send_response(200)
-                    self.send_header('Content-type', 'text/html')
-                    self.end_headers()
-                    # Returning some data in the title is beneficial for our
-                    # assertion later on, that checks if indeed this resource
-                    # has been rendered
-                    self.wfile.write(b'<title>Basic OK!</title>')
+                    if self.path == '/basic':
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/html')
+                        self.end_headers()
+                        # Returning some data in the title is beneficial for our
+                        # assertion later on, that checks if indeed this resource
+                        # has been rendered
+                        self.wfile.write(b'<title>Basic OK!</title>'
+                            b'<link rel="stylesheet" href="/basic_css>"')
+                    # Also check that the credentials are used for the same
+                    # server. We rely on the urllib auth handlers to do the
+                    # right thing(tm)
+                    elif self.path == '/basic_css':
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/css')
+                        self.end_headers()
+                    else:
+                        self.send_error(404)
+                        self.wfile.write(b'/* Basic OK! */')
                     return
 
                 self.send_response(401)

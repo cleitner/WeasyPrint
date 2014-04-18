@@ -17,13 +17,13 @@ import email
 
 
 __all__ = ['BaseHTTPRequestHandler', 'HTTPBasicAuthHandler',
-           'HTTPDigestAuthHandler', 'Request', 'ThreadingMixIn', 'HTTPServer',
-           'base64_decode', 'base64_encode', 'basestring', 'build_opener',
-           'install_opener', 'ints_from_bytes', 'iteritems', 'izip',
-           'parse_email', 'parse_qs', 'pathname2url', 'quote', 'unicode',
-           'unquote', 'unquote_to_bytes', 'urlencode', 'urljoin', 'urlopen',
-           'urlopen_contenttype', 'urlparse_uses_relative', 'urlsplit',
-           'xrange']
+           'HTTPDigestAuthHandler', 'HTTPPasswordMgrWithDefaultRealm',
+           'Request', 'ThreadingMixIn', 'HTTPServer', 'base64_decode',
+           'base64_encode', 'basestring', 'build_opener', 'install_opener',
+           'ints_from_bytes', 'iteritems', 'izip', 'parse_email', 'parse_qs',
+           'pathname2url', 'quote', 'unicode', 'unquote', 'unquote_to_bytes',
+           'urlencode', 'urljoin', 'urlopen', 'urlopen_contenttype',
+           'urlparse_uses_relative', 'urlsplit', 'xrange']
 
 
 if sys.version_info[0] >= 3:
@@ -33,7 +33,8 @@ if sys.version_info[0] >= 3:
         urlencode, uses_relative as urlparse_uses_relative)
     from urllib.request import (
         build_opener, install_opener, HTTPBasicAuthHandler,
-        HTTPDigestAuthHandler, urlopen, Request, pathname2url)
+        HTTPDigestAuthHandler, HTTPPasswordMgrWithDefaultRealm, urlopen,
+        Request, pathname2url)
     from array import array
     from base64 import (decodebytes as base64_decode,
                         encodebytes as base64_encode)
@@ -69,7 +70,8 @@ else:
                           uses_relative as urlparse_uses_relative)
     from urllib2 import (
         build_opener, install_opener, HTTPBasicAuthHandler,
-        HTTPDigestAuthHandler, urlopen, Request)
+        HTTPDigestAuthHandler, HTTPPasswordMgrWithDefaultRealm, urlopen,
+        Request)
     from urllib import pathname2url, quote, unquote, urlencode
     from array import array as _array
     from itertools import izip, imap
